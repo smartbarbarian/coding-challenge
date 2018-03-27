@@ -1,0 +1,81 @@
+// package whatever; // don't place package name!
+/*
+There are a city's N bus information, 
+route[i] stores the bus stop through which the i-th bus passes, 
+find the minimum number of transfers from station A to station B. 
+If you can't get to station B from station A, return -1.
+
+Given N = 2, route = [[1, 2, 3, 4], [3, 5, 6, 7]], A = 1, B = 4, return 1.
+Explanation:
+We only need to take the bus No.0, you can get to Station 3 from Station 0.
+*/
+import java.util.*;
+import java.io.*;
+
+class MyCode {
+  public static void main (String[] args) {
+    System.out.println("Hello Java");
+  }
+  /**
+   * @param N: The number of buses
+   * @param route: The route of buses
+   * @param A: Start bus station
+   * @param B: End bus station
+   * @return: Return the minimum transfer number
+   */
+     
+  public int getMinTransferNumber(int N, int[][] route, int A, int B) {
+    //map: (station, bus lines)
+    Map<Integer, ArrayList<Integer>> map = new HashMap<>();
+    List<Integer> start = new ArrayList<>();
+    Set<Integer> end = new HashSet<>();
+    for (int i = 0; i < N; i++) {
+      for (int j = 0; j < route[i].length; j++) {
+        if (route[i][j] == A) {
+          start.add(i);
+        } else if (route[i][j] == B) {
+          end.add(i);
+        }
+        map.putIfAbsent(route[i][j], new ArrayList<Integer>());
+        map.get(route[i][j]).add(i);
+      }
+    }
+    
+    // to create an adjacency list: adj
+    // adj[i] stores the bus lines that the bus line i can transfer to
+    Set<Integer>[] adj = new HashSet[N];
+    for (int i = 0; i < N; i++) {
+      adj[i] = new HashSet<Integer>();
+    }
+    for (int i = 0; i < N; i++) {
+      for (int j = 0; j < route[i].length; j++) {
+        adj[i].addAll(map.get(route[i][j]));
+      }
+      adj[i].remove(i);
+    }
+    
+    //bfs method to find the minimum depths to reach the destination
+    //initialize q with starting points
+    Queue<Integer> q = new LinkedList<>(start);
+    Set<Integer> visited = new HashSet<>(start);
+    int depth = 0;
+    while (!q.isEmpty()) {
+      int size = q.size();
+      for (int i = 0; i < size; i++) {
+        int cur = q.poll();
+        if (end.contains(cur)) {
+          return depth;
+        }
+        for (int next : adj[cur]) {
+          if (visited.contains(next)) {
+            continue;
+          }
+          q.offer(next);
+          visited.add(next);
+        }
+      }
+      depth++;
+    }
+    return -1;
+  }
+}
